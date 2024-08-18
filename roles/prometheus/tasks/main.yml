@@ -1,0 +1,30 @@
+---
+# tasks file for prometheus
+
+
+# Prometheus tasks
+- name: "apt-get update"
+  apt:
+    update_cache: no
+    cache_valid_time: 3600
+
+- name: "install & update prometheus"
+  apt:
+    name: ['prometheus']
+    state: latest
+    update_cache: yes
+    cache_valid_time: 3600
+
+- name: "move the configuration file template"
+  template:
+    src: /etc/ansible/roles/prometheus/templates/prometheus.yml.j2
+    dest: "{{prom_dir_config}}/prometheus.yml"
+    mode: '0755'
+    owner: prometheus
+    group: prometheus
+
+- name: "restart prometheus"
+  service:
+    name: prometheus
+    state: restarted
+    enabled: yes

@@ -1,0 +1,12 @@
+- hosts: nginx_node  # Definisce il gruppo di host dove eseguire il playbook
+  become: yes  # Esegui i comandi con privilegi elevati
+  tasks:
+    - name: "apt-get update"  # Aggiorna la cache dei pacchetti apt
+      apt:
+        update_cache: yes
+        cache_valid_time: 3600  # Mantieni la cache valida per 1 ora
+
+    - name: "install nginx"  # Installa l'ultima versione di Nginx
+      apt:
+        name: ['nginx']  # Specifica il pacchetto da installare
+        state: latest  # Assicurati che sia installata l'ultima versione

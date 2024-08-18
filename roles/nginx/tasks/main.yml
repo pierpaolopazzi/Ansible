@@ -1,0 +1,48 @@
+---
+# File di tasks per configurare e gestire Nginx
+
+# Task 1: Aggiorna la cache dei pacchetti apt
+- name: "apt-get update"
+  apt:
+    update_cache: yes  # Aggiorna la cache dei pacchetti
+    cache_valid_time: 3600  # Valida la cache per 3600 secondi (1 ora)
+
+# Task 2: Crea la directory per il sito web in /var/www
+- name: "create /var/www/{{server_name}} directory"
+  file:
+    path: /var/www/{{server_name}}  # Percorso della directory da creare
+    state: directory  # Specifica che lo stato desiderato è una directory
+    mode: '0755'  # Imposta i permessi della directory (rwxr-xr-x)
+    owner: "{{ansible_user}}"  # Proprietario della directory
+    group: "{{ansible_user}}"  # Gruppo proprietario della directory
+
+# Task 3: Installa Nginx
+- name: "install nginx"
+  apt:
+    name: ['nginx']  # Nome del pacchetto da installare
+    state: latest  # Installa la versione più recente disponibile
+
+# Task 4: Copia il file di configurazione di Nginx
+- name: "copy the nginx config file"
+  template:
+    src: /etc/ansible/roles/nginx/templates/site.config.j2  # Percorso del template del file di configurazione
+    dest: /etc/nginx/sites-enabled/{{server_name}}  # Destinazione del file di configurazione
+    owner: root  # Proprietario del file
+    group: root  # Gruppo proprietario del file
+    mode: '0644'  # Imposta i permessi del file (rw-r--r--)
+
+# Task 5: Copia i contenuti del sito web nella directory del server
+- name: "copy the content of the website"
+  copy:
+    src: /etc/ansible/roles/nginx/files/  # Percorso dei file sorgente del sito web
+    dest: /var/www/{{server_name}}  # Destinazione dei file nel server
+    owner: root  # Proprietario dei file copiati
+    group: root  # Gruppo proprietario dei file copiati
+    mode: '0644'  # Imposta i permessi dei file (rw-r--r--)
+
+# Task 6: Riavvia Nginx per applicare le nuove configurazioni
+- name: "restart the nginx"
+  service:
+    name: nginx  # Nome del servizio da riavviare
+    state: restarted  # Riavvia il servizio per applicare le modifiche
+

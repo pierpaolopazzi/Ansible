@@ -1,0 +1,32 @@
+---
+# Inizio del playbook YAML per Ansible. I playbook YAML utilizzano il formato YAML (YAML Ain't Markup Language) per definire le operazioni da eseguire.
+
+- hosts: nginx_node
+  # Questo play viene applicato agli host definiti nel gruppo 'nginx_node'. Gli host di questo gruppo sono specificati nel file di inventario di Ansible.
+  become: yes
+  # Indica che Ansible deve eseguire i comandi come superutente (root). Questo è necessario per eseguire operazioni che richiedono privilegi elevati, come l'installazione di software.
+  vars_files:
+    - /etc/ansible/roles/nginx/vars/nginx_vars.yml
+    # Carica variabili da un file YAML specifico per il ruolo 'nginx'. Queste variabili possono essere utilizzate all'interno dei ruoli per personalizzare le configurazioni.
+  roles:
+    - nginx
+    # Applica il ruolo 'nginx' agli host specificati. Questo ruolo potrebbe includere attività come l'installazione e la configurazione di Nginx
+    - node_exporter
+    # Applica il ruolo 'node_exporter' agli host specificati. Questo ruolo potrebbe includere attività come l'installazione e la configurazione di Node Exporter per la raccolta delle metriche di sistema.
+
+
+- hosts: monitoring_node
+  # Questo play viene applicato agli host definiti nel gruppo 'monitoring_node'. Gli host di questo gruppo sono specificati nel file di inventario di Ansible.
+  become: yes
+  # Indica che Ansible deve eseguire i comandi come superutente (root). Questo è necessario per eseguire operazioni che richiedono privilegi elevati, come l'installazione di software.
+  vars_files:
+    - /etc/ansible/roles/prometheus/vars/main.yml
+    # Carica variabili da un file YAML specifico per il ruolo 'prometheus'. Queste variabili possono essere utilizzate all'interno dei ruoli per personalizzare le configurazioni.
+    - /etc/ansible/roles/grafana/vars/main.yml
+    # Carica variabili da un file YAML specifico per il ruolo 'grafana'. Queste variabili possono essere utilizzate all'interno dei ruoli per personalizzare le configurazioni.
+  roles:
+    - prometheus
+    # Applica il ruolo 'prometheus' agli host specificati. Questo ruolo potrebbe includere attività come l'installazione e la configurazione di Prometheus per il monitoraggio e la raccolta delle metriche.
+    - grafana
+    # Applica il ruolo 'grafana' agli host specificati. Questo ruolo potrebbe includere attività come l'installazione e la configurazione di Grafana per la visualizzazione dei dati raccolti da Prometheus.
+

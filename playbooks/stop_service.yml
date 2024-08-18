@@ -1,0 +1,31 @@
+---
+- hosts: all
+  become: yes
+  tasks:
+    - name: "Stop Grafana service"
+      # Questo task ferma il servizio Grafana.
+      service:
+        name: grafana-server
+        state: stopped
+        # Indica che il servizio deve essere fermato.
+
+    - name: "Stop Prometheus service"
+      # Questo task ferma il servizio Prometheus.
+      service:
+        name: prometheus
+        state: stopped
+        # Indica che il servizio deve essere fermato.
+
+    - name: "Stop Nginx service"
+      # Questo task ferma il servizio Nginx.
+      service:
+        name: nginx
+        state: stopped
+        # Indica che il servizio deve essere fermato.
+
+    - name: "Stop Node Exporter service"
+      # Questo task ferma il servizio Node Exporter.
+      service:
+        name: prometheus-node-exporter
+        state: stopped
+        # Indica che il servizio deve essere fermato.

@@ -1,0 +1,70 @@
+---
+# Inizio del file di task per la configurazione e l'installazione di Grafana.
+
+- name: "Install gpg"
+  # Questo task installa i pacchetti necessari per la gestione delle chiavi GPG e dei repository.
+  apt:
+    name: gnupg, software-properties-common
+    # 'gnupg' è necessario per la gestione delle chiavi di firma dei pacchetti.
+    # 'software-properties-common' fornisce strumenti per gestire i repository.
+    state: present
+    # Specifica che i pacchetti devono essere installati.
+    update_cache: yes
+    # Aggiorna la cache dei pacchetti prima di eseguire l'installazione.
+    cache_valid_time: 3600
+    # Imposta il tempo di validità della cache a 3600 secondi (1 ora). Dopo questo tempo, la cache sarà considerata obsoleta e verrà aggiornata.
+
+- name: "add gpg key"
+  # Questo task aggiunge la chiave GPG necessaria per verificare la firma dei pacchetti Grafana.
+  apt_key:
+    url: "https://packages.grafana.com/gpg.key"
+    # URL della chiave GPG pubblica di Grafana.
+    validate_certs: no
+    # Disabilita la verifica del certificato SSL per l'URL della chiave. Nota: in ambienti di produzione, è consigliabile abilitare la verifica dei certificati per motivi di sicurezza.
+
+- name: "add repository"
+  # Questo task aggiunge il repository APT di Grafana al sistema.
+  apt_repository:
+    repo: "deb https://packages.grafana.com/oss/deb stable main"
+    # Specifica l'URL del repository Grafana e il ramo 'stable'.
+    validate_certs: no
+    # Disabilita la verifica del certificato SSL per l'URL del repository. Nota: in ambienti di produzione, è consigliabile abilitare la verifica dei certificati per motivi di sicurezza.
+
+- name: "Install and update Grafana"
+  # Questo task installa o aggiorna Grafana all'ultima versione disponibile.
+  apt:
+    name: grafana
+    # Specifica il nome del pacchetto da installare o aggiornare.
+    state: latest
+    # Indica che il pacchetto deve essere aggiornato all'ultima versione disponibile.
+    update_cache: yes
+    # Aggiorna la cache dei pacchetti prima di eseguire l'installazione.
+    cache_valid_time: 3600
+    # Imposta la validità della cache a 3600 secondi (1 ora). La cache verrà considerata obsoleta dopo questo tempo.
+
+- name: "Start service grafana-server"
+  # Questo task avvia il servizio `grafana-server` e lo abilita per l'avvio automatico all'accensione del sistema.
+  service:
+    name: grafana-server
+    # Specifica il nome del servizio da gestire.
+    enabled: true
+    # Abilita il servizio per l'avvio automatico al boot del sistema.
+    state: restarted
+    # Riavvia il servizio. Se il servizio è già in esecuzione, verrà riavviato; altrimenti, verrà avviato.
+
+
+- name: "Check if Grafana is accessible"
+  # Questo task verifica se Grafana è accessibile sulla porta 3000 dell'indirizzo localhost.
+  uri:
+    url: http://127.0.0.1:3000
+    # URL dell'endpoint da controllare.
+    method: GET
+    # Metodo HTTP da utilizzare per la richiesta.
+  register: __result
+  # Registra la risposta della richiesta HTTP nella variabile `__result`.
+  until: __result.status == 200
+  # Condizione di successo: la risposta HTTP deve avere uno stato 200 (OK).
+  retries: 120
+  # Numero massimo di tentativi per verificare la condizione di successo.
+  delay: 1
+  # Intervallo di tempo (in secondi) tra i tentativi.
